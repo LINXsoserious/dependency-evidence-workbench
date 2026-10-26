@@ -1,0 +1,324 @@
+{
+  "application": "依赖漏洞核验工作台",
+  "version": "0.1.0",
+  "checked_at": "2026-10-26T11:16:36.917294+00:00",
+  "manifest_format": "requirements",
+  "mode": "snapshot",
+  "snapshot_at": "2026-10-26T11:07:50.375846+00:00",
+  "status": "complete",
+  "summary": {
+    "queried_dependencies": 2,
+    "affected_dependencies": 2,
+    "unique_vulnerabilities": 6,
+    "findings": 6,
+    "unresolved_entries": 0,
+    "excluded_dependencies": 0,
+    "query_errors": 0,
+    "detail_errors": 0,
+    "withdrawn_records": 0
+  },
+  "packages": [
+    {
+      "ecosystem": "PyPI",
+      "name": "requests",
+      "version": "2.19.1",
+      "locations": [
+        "第 3 行",
+        "第 5 行"
+      ],
+      "dev": false,
+      "key": "PyPI:requests@2.19.1",
+      "query_status": "命中公告",
+      "vulnerability_count": 5,
+      "query_error": ""
+    },
+    {
+      "ecosystem": "PyPI",
+      "name": "idna",
+      "version": "3.7",
+      "locations": [
+        "第 4 行"
+      ],
+      "dev": false,
+      "key": "PyPI:idna@3.7",
+      "query_status": "命中公告",
+      "vulnerability_count": 1,
+      "query_error": ""
+    }
+  ],
+  "findings": [
+    {
+      "dependency": "PyPI:requests@2.19.1",
+      "ecosystem": "PyPI",
+      "package": "requests",
+      "version": "2.19.1",
+      "vulnerability": "CVE-2018-18074",
+      "aliases": [
+        "CVE-2018-18074",
+        "GHSA-x84v-xcm2-53pg",
+        "PYSEC-2018-28"
+      ],
+      "source_ids": [
+        "GHSA-x84v-xcm2-53pg",
+        "PYSEC-2018-28"
+      ],
+      "severity": "HIGH",
+      "summary": "Insufficiently Protected Credentials in Requests",
+      "details_excerpt": "The Requests package through 2.19.1 before 2018-09-14 for Python sends an HTTP Authorization header to an http URI upon receiving a same-hostname https-to-http redirect, which makes it easier for remote attackers to discover credentials by sniffing the network.",
+      "fixed_versions": [
+        "2.20.0"
+      ],
+      "evidence_urls": [
+        "https://osv.dev/vulnerability/GHSA-x84v-xcm2-53pg",
+        "https://osv.dev/vulnerability/PYSEC-2018-28"
+      ],
+      "references": [
+        "http://docs.python-requests.org/en/master/community/updates/#release-and-version-history",
+        "http://lists.opensuse.org/opensuse-security-announce/2019-07/msg00024.html",
+        "https://access.redhat.com/errata/RHSA-2019:2035",
+        "https://bugs.debian.org/910766",
+        "https://github.com/advisories/GHSA-x84v-xcm2-53pg",
+        "https://github.com/pypa/advisory-database/tree/main/vulns/requests/PYSEC-2018-28.yaml",
+        "https://github.com/requests/requests",
+        "https://github.com/requests/requests/commit/c45d7c49ea75133e52ab22a8e9e13173938e36ff",
+        "https://github.com/requests/requests/issues/4716",
+        "https://github.com/requests/requests/pull/4718",
+        "https://nvd.nist.gov/vuln/detail/CVE-2018-18074",
+        "https://usn.ubuntu.com/3790-1",
+        "https://usn.ubuntu.com/3790-1/",
+        "https://usn.ubuntu.com/3790-2",
+        "https://usn.ubuntu.com/3790-2/",
+        "https://www.oracle.com/security-alerts/cpujul2022.html"
+      ],
+      "advisory_modified": "2024-10-21T21:42:55.896669Z",
+      "details_complete": true,
+      "locations": [
+        "第 3 行",
+        "第 5 行"
+      ]
+    },
+    {
+      "dependency": "PyPI:idna@3.7",
+      "ecosystem": "PyPI",
+      "package": "idna",
+      "version": "3.7",
+      "vulnerability": "CVE-2026-45409",
+      "aliases": [
+        "CVE-2026-45409",
+        "GHSA-65pc-fj4g-8rjx",
+        "PYSEC-2026-215"
+      ],
+      "source_ids": [
+        "GHSA-65pc-fj4g-8rjx",
+        "PYSEC-2026-215"
+      ],
+      "severity": "MEDIUM",
+      "summary": "Internationalized Domain Names in Applications (IDNA): Specially crafted inputs to idna.encode() can bypass CVE-2024-3651 fix",
+      "details_excerpt": "This is the same issue as CVE-2024-3651, however the original remediation in 2024 was not a complete fix. Payloads such as `\"\\u0660\" * N` or `\"\\u30fb\" * N + \"\\u6f22\"` utilize the `valid_contexto` function prior to length rejection, and for high values of `N` will take a long time to process.\n\n### Impact\nA specially crafted argument to the `idna.encode()` function could consume significant resources. This may lead to a denial-of-service.\n\n### Patches\nStarting in version 3.14, the function rejects long inputs as soon as practicable prior to any further processing to minimize resource consumption. In version 3.15, this approach was extended to lesser used alternate functions (i.e. per-label conversions and codec support).\n\n### Workarounds\nDomain names cannot exceed 253 characters in length, if this length limit is enforced prior to passing the domain to the `idna.encode()` function it should no longer consume significant resources. This is triggered by arbitrarily large inputs that would not occur in normal usage, but may be passed to the library assuming there is no preliminary input validation by the higher-level application.",
+      "fixed_versions": [
+        "3.15"
+      ],
+      "evidence_urls": [
+        "https://osv.dev/vulnerability/GHSA-65pc-fj4g-8rjx",
+        "https://osv.dev/vulnerability/PYSEC-2026-215"
+      ],
+      "references": [
+        "https://github.com/kjd/idna",
+        "https://github.com/kjd/idna/security/advisories/GHSA-65pc-fj4g-8rjx",
+        "https://github.com/pypa/advisory-database/tree/main/vulns/idna/PYSEC-2026-215.yaml",
+        "https://nvd.nist.gov/vuln/detail/CVE-2026-45409"
+      ],
+      "advisory_modified": "2026-09-10T03:50:45.700124422Z",
+      "details_complete": true,
+      "locations": [
+        "第 4 行"
+      ]
+    },
+    {
+      "dependency": "PyPI:requests@2.19.1",
+      "ecosystem": "PyPI",
+      "package": "requests",
+      "version": "2.19.1",
+      "vulnerability": "CVE-2023-32681",
+      "aliases": [
+        "CVE-2023-32681",
+        "GHSA-j8r2-6x86-q33q",
+        "PYSEC-2023-74"
+      ],
+      "source_ids": [
+        "GHSA-j8r2-6x86-q33q",
+        "PYSEC-2023-74"
+      ],
+      "severity": "MEDIUM",
+      "summary": "Unintended leak of Proxy-Authorization header in requests",
+      "details_excerpt": "### Impact\n\nSince Requests v2.3.0, Requests has been vulnerable to potentially leaking `Proxy-Authorization` headers to destination servers, specifically during redirects to an HTTPS origin. This is a product of how `rebuild_proxies` is used to recompute and [reattach the `Proxy-Authorization` header](https://github.com/psf/requests/blob/f2629e9e3c7ce3c3c8c025bcd8db551101cbc773/requests/sessions.py#L319-L328) to requests when redirected. Note this behavior has _only_ been observed to affect proxied requests when credentials are supplied in the URL user information component (e.g. `https://username:password@proxy:8080`).\n\n**Current vulnerable behavior(s):**\n\n1. HTTP → HTTPS: **leak**\n2. HTTPS → HTTP: **no leak**\n3. HTTPS → HTTPS: **leak**\n4. HTTP → HTTP: **no leak**\n\nFor HTTP connections sent through the proxy, the proxy will identify the header in the request itself and remove it prior to forwarding to the destination server. However when sent over HTTPS, the `Proxy-Authorization` header must be sent in the CONNECT request as the proxy has no visibility into further tunneled requests. This results in Requests forwarding the header to the destination server unintentionally, allowing a malicious actor to potentially exfiltrate those credentials.\n\nThe reason this currently works for HTTPS connections in Requests is the `Proxy-Authorization` header is also handled by urllib3 with our usage of the ProxyManager in adapters.py with [`proxy_manager_for`](https://github.com/psf/requests/blob/f2629e9e3c7ce3c3c8c025bcd8db551101cbc773/requests/adapters.py#L199-L235). This will compute the required proxy headers in `proxy_headers` and pass them to the Proxy Manager, avoiding attaching them directly to the Request object. This will be our preferred option going forward for default usage.\n\n### Patches\nStarting in Requests v2.31.0, Requests will no longer attach this header to redirects with an HTTPS destination. This should have no negative impacts on the default behavior of the library as the proxy credentials are already properly being handled by urllib3's ProxyManager.\n\nFor users with custom adapters, this _may_ be potentially breaking if you were already working around this behavior. The previous functionality of `rebuild_proxies` doesn't make sense in any case, so we would encourage any users impacted to migrate any handling of Proxy-Authorization directly into their custom adapter.\n\n### Workarounds\nFor users who are not able to update Requests immediately, there is one potential workaround.\n\nYou may disable redirects by setting `allow_redirects` to `False` on all calls through Requests top-level APIs. Note that if you're currently relying on redirect behaviors, you will need to capture the 3xx response codes and ensure a new request is made to the redirect destination.\n```\nimport requests\nr = requests.get('http://github.com/', allow_redirects=False)\n```\n\n### Credits\n\nThis vulnerability was discovered and disclosed by the following individuals.\n\nDennis Brinkrolf, Haxolot (https://haxolot.com/)\nTobias Funke, (tobiasfunke93@gmail.com)",
+      "fixed_versions": [
+        "2.31.0"
+      ],
+      "evidence_urls": [
+        "https://osv.dev/vulnerability/GHSA-j8r2-6x86-q33q",
+        "https://osv.dev/vulnerability/PYSEC-2023-74"
+      ],
+      "references": [
+        "https://github.com/psf/requests",
+        "https://github.com/psf/requests/commit/74ea7cf7a6a27a4eeb2ae24e162bcc942a6706d5",
+        "https://github.com/psf/requests/releases/tag/v2.31.0",
+        "https://github.com/psf/requests/security/advisories/GHSA-j8r2-6x86-q33q",
+        "https://github.com/pypa/advisory-database/tree/main/vulns/requests/PYSEC-2023-74.yaml",
+        "https://lists.debian.org/debian-lts-announce/2023/06/msg00018.html",
+        "https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/AW7HNFGYP44RT3DUDQXG2QT3OEV2PJ7Y",
+        "https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/AW7HNFGYP44RT3DUDQXG2QT3OEV2PJ7Y/",
+        "https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/KOYASTZDGQG2BWLSNBPL3TQRL2G7QYNZ",
+        "https://nvd.nist.gov/vuln/detail/CVE-2023-32681",
+        "https://security.gentoo.org/glsa/202309-08"
+      ],
+      "advisory_modified": "2026-09-10T03:50:01.756149727Z",
+      "details_complete": true,
+      "locations": [
+        "第 3 行",
+        "第 5 行"
+      ]
+    },
+    {
+      "dependency": "PyPI:requests@2.19.1",
+      "ecosystem": "PyPI",
+      "package": "requests",
+      "version": "2.19.1",
+      "vulnerability": "CVE-2024-35195",
+      "aliases": [
+        "CVE-2024-35195",
+        "GHSA-9wx4-h78v-vm56",
+        "PYSEC-2026-1873"
+      ],
+      "source_ids": [
+        "GHSA-9wx4-h78v-vm56",
+        "PYSEC-2026-1873"
+      ],
+      "severity": "MEDIUM",
+      "summary": "Requests `Session` object does not verify requests after making first request with verify=False",
+      "details_excerpt": "When using a `requests.Session`, if the first request to a given origin is made with `verify=False`, TLS certificate verification may remain disabled for all subsequent requests to that origin, even if `verify=True` is explicitly specified later.\n\nThis occurs because the underlying connection is reused from the session's connection pool, causing the initial TLS verification setting to persist for the lifetime of the pooled connection. As a result, applications may unintentionally send requests without certificate verification, leading to potential man-in-the-middle attacks and compromised confidentiality or integrity.\n\nThis behavior affects versions of `requests` prior to 2.32.0.",
+      "fixed_versions": [
+        "2.32.0"
+      ],
+      "evidence_urls": [
+        "https://osv.dev/vulnerability/GHSA-9wx4-h78v-vm56",
+        "https://osv.dev/vulnerability/PYSEC-2026-1873"
+      ],
+      "references": [
+        "https://github.com/advisories/GHSA-9wx4-h78v-vm56",
+        "https://github.com/psf/requests",
+        "https://github.com/psf/requests/commit/a58d7f2ffb4d00b46dca2d70a3932a0b37e22fac",
+        "https://github.com/psf/requests/pull/6655",
+        "https://github.com/psf/requests/security/advisories/GHSA-9wx4-h78v-vm56",
+        "https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/IYLSNK5TL46Q6XPRVMHVWS63MVJQOK4Q",
+        "https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/N7WP6EYDSUOCOJYHDK5NX43PYZ4SNHGZ",
+        "https://nvd.nist.gov/vuln/detail/CVE-2024-35195",
+        "https://pypi.org/project/requests"
+      ],
+      "advisory_modified": "2026-09-10T03:50:13.740879755Z",
+      "details_complete": true,
+      "locations": [
+        "第 3 行",
+        "第 5 行"
+      ]
+    },
+    {
+      "dependency": "PyPI:requests@2.19.1",
+      "ecosystem": "PyPI",
+      "package": "requests",
+      "version": "2.19.1",
+      "vulnerability": "CVE-2024-47081",
+      "aliases": [
+        "CVE-2024-47081",
+        "GHSA-9hjg-9r4m-mvj7",
+        "PYSEC-2026-1872"
+      ],
+      "source_ids": [
+        "GHSA-9hjg-9r4m-mvj7",
+        "PYSEC-2026-1872"
+      ],
+      "severity": "MEDIUM",
+      "summary": "Requests vulnerable to .netrc credentials leak via malicious URLs",
+      "details_excerpt": "### Impact\n\nDue to a URL parsing issue, Requests releases prior to 2.32.4 may leak .netrc credentials to third parties for specific maliciously-crafted URLs.\n\n### Workarounds\nFor older versions of Requests, use of the .netrc file can be disabled with `trust_env=False` on your Requests Session ([docs](https://requests.readthedocs.io/en/latest/api/#requests.Session.trust_env)).\n\n### References\nhttps://github.com/psf/requests/pull/6965\nhttps://seclists.org/fulldisclosure/2025/Jun/2",
+      "fixed_versions": [
+        "2.32.4"
+      ],
+      "evidence_urls": [
+        "https://osv.dev/vulnerability/GHSA-9hjg-9r4m-mvj7",
+        "https://osv.dev/vulnerability/PYSEC-2026-1872"
+      ],
+      "references": [
+        "http://seclists.org/fulldisclosure/2025/Jun/2",
+        "http://www.openwall.com/lists/oss-security/2025/06/03/11",
+        "http://www.openwall.com/lists/oss-security/2025/06/03/9",
+        "http://www.openwall.com/lists/oss-security/2025/06/04/1",
+        "http://www.openwall.com/lists/oss-security/2025/06/04/6",
+        "https://github.com/advisories/GHSA-9hjg-9r4m-mvj7",
+        "https://github.com/psf/requests",
+        "https://github.com/psf/requests/commit/96ba401c1296ab1dda74a2365ef36d88f7d144ef",
+        "https://github.com/psf/requests/pull/6965",
+        "https://github.com/psf/requests/releases/tag/v2.32.4",
+        "https://github.com/psf/requests/security/advisories/GHSA-9hjg-9r4m-mvj7",
+        "https://github.com/pypa/advisory-database/tree/main/vulns/requests/PYSEC-2026-1872.yaml",
+        "https://nvd.nist.gov/vuln/detail/CVE-2024-47081",
+        "https://pypi.org/project/requests",
+        "https://requests.readthedocs.io/en/latest/api/#requests.Session.trust_env",
+        "https://seclists.org/fulldisclosure/2025/Jun/2"
+      ],
+      "advisory_modified": "2026-10-19T20:00:04.716114530Z",
+      "details_complete": true,
+      "locations": [
+        "第 3 行",
+        "第 5 行"
+      ]
+    },
+    {
+      "dependency": "PyPI:requests@2.19.1",
+      "ecosystem": "PyPI",
+      "package": "requests",
+      "version": "2.19.1",
+      "vulnerability": "CVE-2026-25645",
+      "aliases": [
+        "CVE-2026-25645",
+        "GHSA-gc5v-m9x4-r6x2",
+        "PYSEC-2026-2275"
+      ],
+      "source_ids": [
+        "GHSA-gc5v-m9x4-r6x2",
+        "PYSEC-2026-2275"
+      ],
+      "severity": "MEDIUM",
+      "summary": "Requests has Insecure Temp File Reuse in its extract_zipped_paths() utility function",
+      "details_excerpt": "### Impact\nThe `requests.utils.extract_zipped_paths()` utility function uses a predictable filename when extracting files from zip archives into the system temporary directory. If the target file already exists, it is reused without validation. A local attacker with write access to the temp directory could pre-create a malicious file that would be loaded in place of the legitimate one.\n\n### Affected usages\n**Standard usage of the Requests library is not affected by this vulnerability.** Only applications that call `extract_zipped_paths()` directly are impacted.\n\n### Remediation\nUpgrade to at least Requests 2.33.0, where the library now extracts files to a non-deterministic location.\n\nIf developers are unable to upgrade, they can set `TMPDIR` in their environment to a directory with restricted write access.",
+      "fixed_versions": [
+        "2.33.0"
+      ],
+      "evidence_urls": [
+        "https://osv.dev/vulnerability/GHSA-gc5v-m9x4-r6x2",
+        "https://osv.dev/vulnerability/PYSEC-2026-2275"
+      ],
+      "references": [
+        "https://github.com/psf/requests",
+        "https://github.com/psf/requests/commit/66d21cb07bd6255b1280291c4fafb71803cdb3b7",
+        "https://github.com/psf/requests/releases/tag/v2.33.0",
+        "https://github.com/psf/requests/security/advisories/GHSA-gc5v-m9x4-r6x2",
+        "https://nvd.nist.gov/vuln/detail/CVE-2026-25645"
+      ],
+      "advisory_modified": "2026-09-10T03:50:39.207922076Z",
+      "details_complete": true,
+      "locations": [
+        "第 3 行",
+        "第 5 行"
+      ]
+    }
+  ],
+  "unresolved": [],
+  "excluded_packages": [],
+  "detail_errors": {},
+  "withdrawn_ids": [],
+  "network_requests": 0,
+  "cached_advisories": 0,
+  "scope": "按 OSV 对精确依赖版本的公开记录匹配；未验证安装状态、可达性、利用条件或升级兼容性。未命中不等于无漏洞。",
+  "fix_note": "修复参考是匹配包公告中列出的边界，可能包含多个分支；不是保证兼容的升级建议。",
+  "manifest_sha256": "36848852738cec014a940ccce86601da3ed6c5a844fd56dd3db6d725573410d3"
+}

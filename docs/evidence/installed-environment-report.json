@@ -1,0 +1,487 @@
+{
+  "application": "依赖漏洞核验工作台",
+  "version": "0.1.0",
+  "checked_at": "2026-10-26T11:13:14.019134+00:00",
+  "mode": "live",
+  "snapshot_at": "",
+  "status": "complete",
+  "summary": {
+    "queried_dependencies": 35,
+    "affected_dependencies": 0,
+    "unique_vulnerabilities": 0,
+    "findings": 0,
+    "unresolved_entries": 0,
+    "excluded_dependencies": 0,
+    "query_errors": 0,
+    "detail_errors": 0,
+    "withdrawn_records": 0
+  },
+  "packages": [
+    {
+      "ecosystem": "PyPI",
+      "name": "altair",
+      "version": "6.3.0",
+      "locations": [
+        "条目 1"
+      ],
+      "dev": false,
+      "key": "PyPI:altair@6.3.0",
+      "query_status": "未命中",
+      "vulnerability_count": 0,
+      "query_error": ""
+    },
+    {
+      "ecosystem": "PyPI",
+      "name": "anyio",
+      "version": "4.15.1",
+      "locations": [
+        "条目 2"
+      ],
+      "dev": false,
+      "key": "PyPI:anyio@4.15.1",
+      "query_status": "未命中",
+      "vulnerability_count": 0,
+      "query_error": ""
+    },
+    {
+      "ecosystem": "PyPI",
+      "name": "attrs",
+      "version": "26.1.0",
+      "locations": [
+        "条目 3"
+      ],
+      "dev": false,
+      "key": "PyPI:attrs@26.1.0",
+      "query_status": "未命中",
+      "vulnerability_count": 0,
+      "query_error": ""
+    },
+    {
+      "ecosystem": "PyPI",
+      "name": "certifi",
+      "version": "2026.10.23",
+      "locations": [
+        "条目 4"
+      ],
+      "dev": false,
+      "key": "PyPI:certifi@2026.10.23",
+      "query_status": "未命中",
+      "vulnerability_count": 0,
+      "query_error": ""
+    },
+    {
+      "ecosystem": "PyPI",
+      "name": "charset-normalizer",
+      "version": "3.5.2",
+      "locations": [
+        "条目 5"
+      ],
+      "dev": false,
+      "key": "PyPI:charset-normalizer@3.5.2",
+      "query_status": "未命中",
+      "vulnerability_count": 0,
+      "query_error": ""
+    },
+    {
+      "ecosystem": "PyPI",
+      "name": "click",
+      "version": "8.5.0",
+      "locations": [
+        "条目 6"
+      ],
+      "dev": false,
+      "key": "PyPI:click@8.5.0",
+      "query_status": "未命中",
+      "vulnerability_count": 0,
+      "query_error": ""
+    },
+    {
+      "ecosystem": "PyPI",
+      "name": "h11",
+      "version": "0.16.0",
+      "locations": [
+        "条目 7"
+      ],
+      "dev": false,
+      "key": "PyPI:h11@0.16.0",
+      "query_status": "未命中",
+      "vulnerability_count": 0,
+      "query_error": ""
+    },
+    {
+      "ecosystem": "PyPI",
+      "name": "idna",
+      "version": "3.20",
+      "locations": [
+        "条目 8"
+      ],
+      "dev": false,
+      "key": "PyPI:idna@3.20",
+      "query_status": "未命中",
+      "vulnerability_count": 0,
+      "query_error": ""
+    },
+    {
+      "ecosystem": "PyPI",
+      "name": "itsdangerous",
+      "version": "2.2.0",
+      "locations": [
+        "条目 9"
+      ],
+      "dev": false,
+      "key": "PyPI:itsdangerous@2.2.0",
+      "query_status": "未命中",
+      "vulnerability_count": 0,
+      "query_error": ""
+    },
+    {
+      "ecosystem": "PyPI",
+      "name": "jinja2",
+      "version": "3.1.6",
+      "locations": [
+        "条目 10"
+      ],
+      "dev": false,
+      "key": "PyPI:jinja2@3.1.6",
+      "query_status": "未命中",
+      "vulnerability_count": 0,
+      "query_error": ""
+    },
+    {
+      "ecosystem": "PyPI",
+      "name": "jsonschema",
+      "version": "4.26.0",
+      "locations": [
+        "条目 11"
+      ],
+      "dev": false,
+      "key": "PyPI:jsonschema@4.26.0",
+      "query_status": "未命中",
+      "vulnerability_count": 0,
+      "query_error": ""
+    },
+    {
+      "ecosystem": "PyPI",
+      "name": "jsonschema-specifications",
+      "version": "2025.9.1",
+      "locations": [
+        "条目 12"
+      ],
+      "dev": false,
+      "key": "PyPI:jsonschema-specifications@2025.9.1",
+      "query_status": "未命中",
+      "vulnerability_count": 0,
+      "query_error": ""
+    },
+    {
+      "ecosystem": "PyPI",
+      "name": "markupsafe",
+      "version": "3.0.4",
+      "locations": [
+        "条目 13"
+      ],
+      "dev": false,
+      "key": "PyPI:markupsafe@3.0.4",
+      "query_status": "未命中",
+      "vulnerability_count": 0,
+      "query_error": ""
+    },
+    {
+      "ecosystem": "PyPI",
+      "name": "narwhals",
+      "version": "2.27.1",
+      "locations": [
+        "条目 14"
+      ],
+      "dev": false,
+      "key": "PyPI:narwhals@2.27.1",
+      "query_status": "未命中",
+      "vulnerability_count": 0,
+      "query_error": ""
+    },
+    {
+      "ecosystem": "PyPI",
+      "name": "numpy",
+      "version": "2.5.4",
+      "locations": [
+        "条目 15"
+      ],
+      "dev": false,
+      "key": "PyPI:numpy@2.5.4",
+      "query_status": "未命中",
+      "vulnerability_count": 0,
+      "query_error": ""
+    },
+    {
+      "ecosystem": "PyPI",
+      "name": "packaging",
+      "version": "26.3",
+      "locations": [
+        "条目 16"
+      ],
+      "dev": false,
+      "key": "PyPI:packaging@26.3",
+      "query_status": "未命中",
+      "vulnerability_count": 0,
+      "query_error": ""
+    },
+    {
+      "ecosystem": "PyPI",
+      "name": "pandas",
+      "version": "3.1.0",
+      "locations": [
+        "条目 17"
+      ],
+      "dev": false,
+      "key": "PyPI:pandas@3.1.0",
+      "query_status": "未命中",
+      "vulnerability_count": 0,
+      "query_error": ""
+    },
+    {
+      "ecosystem": "PyPI",
+      "name": "pillow",
+      "version": "13.0.0",
+      "locations": [
+        "条目 18"
+      ],
+      "dev": false,
+      "key": "PyPI:pillow@13.0.0",
+      "query_status": "未命中",
+      "vulnerability_count": 0,
+      "query_error": ""
+    },
+    {
+      "ecosystem": "PyPI",
+      "name": "protobuf",
+      "version": "7.36.2",
+      "locations": [
+        "条目 19"
+      ],
+      "dev": false,
+      "key": "PyPI:protobuf@7.36.2",
+      "query_status": "未命中",
+      "vulnerability_count": 0,
+      "query_error": ""
+    },
+    {
+      "ecosystem": "PyPI",
+      "name": "pyarrow",
+      "version": "26.0.0",
+      "locations": [
+        "条目 20"
+      ],
+      "dev": false,
+      "key": "PyPI:pyarrow@26.0.0",
+      "query_status": "未命中",
+      "vulnerability_count": 0,
+      "query_error": ""
+    },
+    {
+      "ecosystem": "PyPI",
+      "name": "pydeck",
+      "version": "0.9.3",
+      "locations": [
+        "条目 21"
+      ],
+      "dev": false,
+      "key": "PyPI:pydeck@0.9.3",
+      "query_status": "未命中",
+      "vulnerability_count": 0,
+      "query_error": ""
+    },
+    {
+      "ecosystem": "PyPI",
+      "name": "python-dateutil",
+      "version": "3.0.0",
+      "locations": [
+        "条目 22"
+      ],
+      "dev": false,
+      "key": "PyPI:python-dateutil@3.0.0",
+      "query_status": "未命中",
+      "vulnerability_count": 0,
+      "query_error": ""
+    },
+    {
+      "ecosystem": "PyPI",
+      "name": "python-multipart",
+      "version": "0.0.32",
+      "locations": [
+        "条目 23"
+      ],
+      "dev": false,
+      "key": "PyPI:python-multipart@0.0.32",
+      "query_status": "未命中",
+      "vulnerability_count": 0,
+      "query_error": ""
+    },
+    {
+      "ecosystem": "PyPI",
+      "name": "referencing",
+      "version": "0.37.0",
+      "locations": [
+        "条目 24"
+      ],
+      "dev": false,
+      "key": "PyPI:referencing@0.37.0",
+      "query_status": "未命中",
+      "vulnerability_count": 0,
+      "query_error": ""
+    },
+    {
+      "ecosystem": "PyPI",
+      "name": "requests",
+      "version": "2.34.2",
+      "locations": [
+        "条目 25"
+      ],
+      "dev": false,
+      "key": "PyPI:requests@2.34.2",
+      "query_status": "未命中",
+      "vulnerability_count": 0,
+      "query_error": ""
+    },
+    {
+      "ecosystem": "PyPI",
+      "name": "rpds-py",
+      "version": "2026.9.1",
+      "locations": [
+        "条目 26"
+      ],
+      "dev": false,
+      "key": "PyPI:rpds-py@2026.9.1",
+      "query_status": "未命中",
+      "vulnerability_count": 0,
+      "query_error": ""
+    },
+    {
+      "ecosystem": "PyPI",
+      "name": "six",
+      "version": "1.17.0",
+      "locations": [
+        "条目 27"
+      ],
+      "dev": false,
+      "key": "PyPI:six@1.17.0",
+      "query_status": "未命中",
+      "vulnerability_count": 0,
+      "query_error": ""
+    },
+    {
+      "ecosystem": "PyPI",
+      "name": "starlette",
+      "version": "1.10.0",
+      "locations": [
+        "条目 28"
+      ],
+      "dev": false,
+      "key": "PyPI:starlette@1.10.0",
+      "query_status": "未命中",
+      "vulnerability_count": 0,
+      "query_error": ""
+    },
+    {
+      "ecosystem": "PyPI",
+      "name": "streamlit",
+      "version": "1.66.1",
+      "locations": [
+        "条目 29"
+      ],
+      "dev": false,
+      "key": "PyPI:streamlit@1.66.1",
+      "query_status": "未命中",
+      "vulnerability_count": 0,
+      "query_error": ""
+    },
+    {
+      "ecosystem": "PyPI",
+      "name": "typing-extensions",
+      "version": "4.16.0",
+      "locations": [
+        "条目 30"
+      ],
+      "dev": false,
+      "key": "PyPI:typing-extensions@4.16.0",
+      "query_status": "未命中",
+      "vulnerability_count": 0,
+      "query_error": ""
+    },
+    {
+      "ecosystem": "PyPI",
+      "name": "tzdata",
+      "version": "2026.5",
+      "locations": [
+        "条目 31"
+      ],
+      "dev": false,
+      "key": "PyPI:tzdata@2026.5",
+      "query_status": "未命中",
+      "vulnerability_count": 0,
+      "query_error": ""
+    },
+    {
+      "ecosystem": "PyPI",
+      "name": "urllib3",
+      "version": "2.8.0",
+      "locations": [
+        "条目 32"
+      ],
+      "dev": false,
+      "key": "PyPI:urllib3@2.8.0",
+      "query_status": "未命中",
+      "vulnerability_count": 0,
+      "query_error": ""
+    },
+    {
+      "ecosystem": "PyPI",
+      "name": "uvicorn",
+      "version": "0.54.0",
+      "locations": [
+        "条目 33"
+      ],
+      "dev": false,
+      "key": "PyPI:uvicorn@0.54.0",
+      "query_status": "未命中",
+      "vulnerability_count": 0,
+      "query_error": ""
+    },
+    {
+      "ecosystem": "PyPI",
+      "name": "watchdog",
+      "version": "6.0.0",
+      "locations": [
+        "条目 34"
+      ],
+      "dev": false,
+      "key": "PyPI:watchdog@6.0.0",
+      "query_status": "未命中",
+      "vulnerability_count": 0,
+      "query_error": ""
+    },
+    {
+      "ecosystem": "PyPI",
+      "name": "websockets",
+      "version": "17.3",
+      "locations": [
+        "条目 35"
+      ],
+      "dev": false,
+      "key": "PyPI:websockets@17.3",
+      "query_status": "未命中",
+      "vulnerability_count": 0,
+      "query_error": ""
+    }
+  ],
+  "findings": [],
+  "unresolved": [],
+  "excluded_packages": [],
+  "detail_errors": {},
+  "withdrawn_ids": [],
+  "network_requests": 1,
+  "cached_advisories": 0,
+  "scope": "按 OSV 对精确依赖版本的公开记录匹配；未验证安装状态、可达性、利用条件或升级兼容性。未命中不等于无漏洞。",
+  "fix_note": "修复参考是匹配包公告中列出的边界，可能包含多个分支；不是保证兼容的升级建议。",
+  "manifest_format": "pip-list-json",
+  "manifest_sha256": "50b618db007806b0b97c680dcca38dae8fdd8739dc79212a9df742a54e7a5740"
+}

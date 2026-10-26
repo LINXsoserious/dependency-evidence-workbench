@@ -1,0 +1,13 @@
+[theme]
+base = "light"
+primaryColor = "#a46431"
+backgroundColor = "#f7f5f0"
+secondaryBackgroundColor = "#e9edf0"
+textColor = "#273344"
+
+[browser]
+gatherUsageStats = false
+
+[server]
+maxUploadSize = 5
+enableXsrfProtection = true

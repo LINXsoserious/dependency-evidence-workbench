@@ -1,0 +1,11 @@
+Dependency Evidence Workbench
+Copyright 2026 LINXsoserious and contributors.
+
+Application code is licensed under Apache-2.0.
+Initial implementation, tests, and documentation were created with AI assistance.
+
+Public vulnerability records are retrieved through OSV and attributed separately
+in DATA_SOURCES.md. Bundled GHSA and PYSEC records retain their upstream
+CC BY 4.0 data licenses; see LICENSES/CC-BY-4.0.txt.
+
+No endorsement by OSV, GitHub, PyPA, or the affected projects is claimed.

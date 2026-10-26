@@ -1,0 +1,5 @@
+# Historical versions for demonstrating actual OSV advisory matches.
+# Do not install this example. The application only parses its text.
+requests==2.19.1
+idna==3.7
+requests==2.19.1
