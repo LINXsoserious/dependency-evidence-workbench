@@ -7,6 +7,9 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import re
 from urllib.parse import quote, urlsplit
 
+from . import __version__
+from .i18n import diagnostic, location_text, text
+
 SEVERITY_RANK = {"CRITICAL": 4, "HIGH": 3, "MEDIUM": 2, "LOW": 1, "UNKNOWN": 0}
 
 
@@ -106,7 +109,7 @@ def scan(parsed, client, excluded=0):
     findings.sort(key=lambda finding: (-SEVERITY_RANK[finding["severity"]], finding["package"], finding["vulnerability"]))
     query_errors = sum(bool(result.error) for result in queried.values())
     return {
-        "application": "依赖漏洞核验工作台", "version": "0.1.0", "checked_at": datetime.now(timezone.utc).isoformat(), "manifest_format": parsed.format,
+        "application": "依赖漏洞核验工作台", "version": __version__, "checked_at": datetime.now(timezone.utc).isoformat(), "manifest_format": parsed.format,
         "mode": getattr(client, "mode", "unknown"), "snapshot_at": getattr(client, "snapshot_at", ""),
         "status": "partial" if parsed.skipped or query_errors or detail_errors or not parsed.packages else "complete",
         "summary": {"queried_dependencies": len(parsed.packages), "affected_dependencies": len({f["dependency"] for f in findings}),
@@ -125,42 +128,54 @@ def _md(value):
     return str(value).replace("\\", "\\\\").replace("|", "\\|").replace("<", "&lt;").replace(">", "&gt;").replace("[", "\\[").replace("]", "\\]").replace("\r", " ").replace("\n", " ")
 
 
-def markdown_report(report):
+def summary_text(finding, lang="zh"):
+    """Localize the generated empty-detail placeholder, never other advisory text."""
+    value = finding["summary"]
+    return diagnostic(value, lang) if value == "命中公告，详情未取得" and not finding["details_excerpt"] else value
+
+
+def markdown_report(report, lang="zh"):
+    """Render readable text in the requested language without mutating JSON data."""
+    t = lambda key, **values: text(key, lang, **values)
+    d = lambda value: diagnostic(value, lang)
     summary = report["summary"]
-    lines = ["# 依赖漏洞核验报告", "", f"检查时间：{report['checked_at']}。模式：{report['mode']}。完整性：{report['status']}。", "",
-             f"检查 {summary['queried_dependencies']} 个依赖版本；命中 {summary['affected_dependencies']} 个依赖版本、{summary['unique_vulnerabilities']} 组去重漏洞。",
-             f"未解析 {summary['unresolved_entries']} 项；排除 {summary['excluded_dependencies']} 项；查询失败 {summary['query_errors']} 项；详情失败 {summary['detail_errors']} 项。", "",
-             "| 依赖 | 级别 | 漏洞 | 公告修复边界 |", "| --- | --- | --- | --- |"]
+    lines = ["# " + t("report_title"), "", t("report_metadata", time=report["checked_at"], mode=report["mode"], status=report["status"]), "",
+             t("report_summary", queried=summary["queried_dependencies"], affected=summary["affected_dependencies"], vulnerabilities=summary["unique_vulnerabilities"]),
+             t("report_gaps", unresolved=summary["unresolved_entries"], excluded=summary["excluded_dependencies"], queries=summary["query_errors"], details=summary["detail_errors"]), "",
+             t("report_table"), "| --- | --- | --- | --- |"]
     for finding in report["findings"]:
-        lines.append("| " + " | ".join(_md(value) for value in [finding["dependency"], finding["severity"], finding["vulnerability"], ", ".join(finding["fixed_versions"]) or "未列出"]) + " |")
+        lines.append("| " + " | ".join(_md(value) for value in [finding["dependency"], finding["severity"], finding["vulnerability"], ", ".join(finding["fixed_versions"]) or t("not_listed")]) + " |")
     for finding in report["findings"]:
-        lines.extend(["", "## " + _md(finding["vulnerability"]) + " / " + _md(finding["dependency"]), "", _md(finding["summary"]), ""])
-        lines.extend("- 证据：" + url for url in finding["evidence_urls"])
+        lines.extend(["", "## " + _md(finding["vulnerability"]) + " / " + _md(finding["dependency"]), "", _md(summary_text(finding, lang)), ""])
+        lines.extend("- " + t("evidence") + url for url in finding["evidence_urls"])
     if report["unresolved"]:
-        lines.extend(["", "## 未解析项", ""] + ["- " + _md(item["location"]) + "：" + _md(item["reason"]) for item in report["unresolved"]])
-    errors = ["- " + _md(p["key"]) + "：" + _md(p["query_error"]) for p in report["packages"] if p["query_error"]]
-    errors += ["- " + _md(identifier) + "：" + _md(error) for identifier, error in report["detail_errors"].items()]
+        lines.extend(["", "## " + t("unresolved_heading"), ""] + ["- " + _md(location_text(item["location"], report["manifest_format"], lang)) + ": " + _md(d(item["reason"])) for item in report["unresolved"]])
+    errors = ["- " + _md(p["key"]) + ": " + _md(d(p["query_error"])) for p in report["packages"] if p["query_error"]]
+    errors += ["- " + _md(identifier) + ": " + _md(d(error)) for identifier, error in report["detail_errors"].items()]
     if errors:
-        lines.extend(["", "## 查询与详情异常", ""] + errors)
+        lines.extend(["", "## " + t("errors_heading"), ""] + errors)
     if report["excluded_packages"]:
-        lines.extend(["", "## 用户排除范围", ""] + ["- " + _md(item) for item in report["excluded_packages"]])
-    lines.extend(["", report["scope"], "", report["fix_note"], ""])
+        lines.extend(["", "## " + t("excluded_heading"), ""] + ["- " + _md(item) for item in report["excluded_packages"]])
+    lines.extend(["", d(report["scope"]), "", d(report["fix_note"]), ""])
     return "\n".join(lines)
 
 
-def csv_report(report):
+def csv_report(report, lang="zh"):
+    """Render localized columns and notes while keeping source identifiers intact."""
+    t = lambda key: text(key, lang)
+    d = lambda value: diagnostic(value, lang)
     buffer = io.StringIO(newline="")
     writer = csv.writer(buffer, lineterminator="\n")
     def write_row(values):
         writer.writerow(["'" + str(value) if str(value).startswith(("\t", "\r", "\n")) or re.match(r"^\s*[=+@-]", str(value)) else value for value in values])
 
-    write_row(["报告完整性", "记录类型", "依赖", "漏洞", "级别", "公告修复边界", "证据URL", "说明"])
+    write_row([t("csv_completeness"), t("csv_type"), t("package_dependency"), t("vulnerability"), t("severity"), t("fixed"), t("csv_url"), t("csv_note")])
     for finding in report["findings"]:
-        values = [report["status"], "命中", finding["dependency"], finding["vulnerability"], finding["severity"], ", ".join(finding["fixed_versions"]), " ".join(finding["evidence_urls"]), "详情完整" if finding["details_complete"] else "详情缺失，请复核"]
+        values = [report["status"], t("csv_match"), finding["dependency"], finding["vulnerability"], finding["severity"], ", ".join(finding["fixed_versions"]), " ".join(finding["evidence_urls"]), t("csv_details_complete" if finding["details_complete"] else "csv_details_missing")]
         write_row(values)
     for package in report["packages"]:
         if package["query_error"] or not package["vulnerability_count"]:
-            write_row([report["status"], "查询状态", package["key"], "", "", "", "", package["query_error"] or package["query_status"]])
+            write_row([report["status"], t("csv_query_status"), package["key"], "", "", "", "", d(package["query_error"] or package["query_status"])])
     for item in report["unresolved"]:
-        write_row([report["status"], "未解析", item["location"], "", "", "", "", item["reason"]])
+        write_row([report["status"], t("csv_unresolved"), location_text(item["location"], report["manifest_format"], lang), "", "", "", "", d(item["reason"])])
     return buffer.getvalue().encode("utf-8-sig")

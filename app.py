@@ -11,12 +11,23 @@ import pandas as pd
 import streamlit as st
 
 from dependency_workbench import __version__
+from dependency_workbench.i18n import diagnostic, location_text, text
 from dependency_workbench.manifests import parse_manifest
 from dependency_workbench.osv import OSVClient, SnapshotClient
-from dependency_workbench.report import csv_report, markdown_report, scan
+from dependency_workbench.report import csv_report, markdown_report, scan, summary_text
 
 ROOT = Path(__file__).resolve().parent
-st.set_page_config(page_title="依赖证据台 · Dependency Desk", page_icon="◉", layout="wide")
+
+
+def remember_choice(state_key, widget_key):
+    """Retain a canonical choice independently of locale-specific widgets."""
+    st.session_state[state_key] = st.session_state[widget_key]
+
+
+lang = "en" if st.session_state.get("ui_language") == "English" else "zh"
+t = lambda key, **values: text(key, lang, **values)
+d = lambda value: diagnostic(value, lang)
+st.set_page_config(page_title=t("page_title"), page_icon="◉", layout="wide")
 st.markdown("""
 <style>
 .stApp{background:#f7f5f0;color:#273344;}
@@ -36,10 +47,18 @@ h1,h2,h3{color:#273344;letter-spacing:-.025em;}
 """, unsafe_allow_html=True)
 
 with st.sidebar:
-    st.markdown('<div class="brand">◉ 依赖证据台</div>', unsafe_allow_html=True)
+    st.selectbox(t("language"), ["简体中文", "English"], key="ui_language")
+    st.markdown(f'<div class="brand">◉ {t("brand")}</div>', unsafe_allow_html=True)
     st.caption(f"DEPENDENCY DESK / {__version__}")
     st.divider()
-    source = st.radio("01　导入清单", ["Python 示例", "npm 示例", "上传清单", "粘贴清单"], key="source")
+    # Locale-specific widget IDs refresh frontend option strings. Canonical values
+    # preserve choices and scan fingerprints independently of display widgets.
+    source_keys = {"Python 示例": "python_example", "npm 示例": "npm_example", "上传清单": "upload", "粘贴清单": "paste"}
+    source_widget = "source" if lang == "zh" else "source_en"
+    if "selected_source" not in st.session_state:
+        st.session_state.selected_source = st.session_state.get("source", "Python 示例")
+    st.session_state[source_widget] = st.session_state.selected_source
+    source = st.radio(t("source"), list(source_keys), format_func=lambda value: t(source_keys[value]), key=source_widget, on_change=remember_choice, args=("selected_source", source_widget))
     data = None
     filename = ""
     if source == "Python 示例":
@@ -49,42 +68,47 @@ with st.sidebar:
         filename = "package-lock.json"
         data = (ROOT / "samples" / filename).read_bytes()
     elif source == "上传清单":
-        upload = st.file_uploader("requirements.txt / pip list JSON / package-lock.json", type=["txt", "json"], max_upload_size=5, key="upload")
+        upload = st.file_uploader(t("upload_label"), type=["txt", "json"], max_upload_size=5, key="upload")
         if upload:
             data, filename = upload.getvalue(), upload.name
     else:
-        text = st.text_area("清单内容", value="requests==2.19.1\nidna==3.7", height=140, key="paste")
-        data = text.encode()
-        filename = "pasted.json" if text.lstrip().startswith(("{", "[")) else "requirements.txt"
-    st.caption("不安装或执行依赖。最多 5 MB、2,000 个唯一依赖版本。")
-    st.markdown("**02　检查范围**")
-    production = st.checkbox("排除 npm 开发依赖", value=False, key="production")
-    excluded_names = st.text_input("排除包名（逗号分隔）", placeholder="例如 internal-library", key="exclude")
-    st.caption("可先排除内部包；Python 文本清单不包含 dev 标签。")
-    st.markdown("**03　检查方式**")
-    mode = st.radio("数据来源", ["联网检查", "离线演示快照"], index=1 if source.endswith("示例") else 0, key=f"mode_{source}")
-    refresh = st.checkbox("重新获取公告，不用缓存", key="refresh", disabled=mode != "联网检查")
+        pasted = st.text_area(t("content"), value="requests==2.19.1\nidna==3.7", height=140, key="paste")
+        data = pasted.encode()
+        filename = "pasted.json" if pasted.lstrip().startswith(("{", "[")) else "requirements.txt"
+    st.caption(t("input_limit"))
+    st.markdown("**" + t("scope_heading") + "**")
+    production = st.checkbox(t("production"), value=False, key="production")
+    excluded_names = st.text_input(t("exclude"), placeholder=t("exclude_placeholder"), key="exclude")
+    st.caption(t("scope_hint"))
+    st.markdown("**" + t("mode_heading") + "**")
+    mode_state = f"selected_mode_{source}"
+    mode_widget = f"mode_{source}" + ("_en" if lang == "en" else "")
+    if mode_state not in st.session_state:
+        st.session_state[mode_state] = st.session_state.get(f"mode_{source}", "离线演示快照" if source.endswith("示例") else "联网检查")
+    st.session_state[mode_widget] = st.session_state[mode_state]
+    mode = st.radio(t("data_source"), ["联网检查", "离线演示快照"], format_func=lambda value: t("live" if value == "联网检查" else "snapshot"), key=mode_widget, on_change=remember_choice, args=(mode_state, mode_widget))
+    refresh = st.checkbox(t("refresh"), key="refresh", disabled=mode != "联网检查")
     if mode == "联网检查":
-        st.caption("点击后仅向 api.osv.dev 发送所选包名、生态和版本，不上传清单原文。")
+        st.caption(t("live_hint"))
     else:
-        st.caption("快照来自真实 OSV 公告，仅覆盖内置示例版本，不代表当前实时结果。")
-    run_clicked = st.button("开始联网检查" if mode == "联网检查" else "运行离线演示", type="primary", width="stretch", key="scan")
+        st.caption(t("snapshot_hint"))
+    run_clicked = st.button(t("run_live" if mode == "联网检查" else "run_snapshot"), type="primary", width="stretch", key="scan")
     st.divider()
-    st.caption("公开资料 · 不需要 API 密钥\n\n已知漏洞匹配 ≠ 已验证可利用")
+    st.caption(t("sidebar_note"))
 
-st.markdown("""
+st.markdown(f"""
 <div class="hero"><div class="overline">DEPENDENCY EVIDENCE / FROM INVENTORY TO ACTION</div>
-<h1>每一项依赖，都有据可查。</h1>
-<p>从清单核对已知漏洞，保留版本、公告与修复参考。把未检查的部分，也放进报告。</p></div>
+<h1>{t("hero_title")}</h1>
+<p>{t("hero_body")}</p></div>
 """, unsafe_allow_html=True)
 
 if data is None:
-    st.info("上传或粘贴依赖清单。准备体验时，可先使用左侧的 Python / npm 示例。")
+    st.info(t("empty_input"))
     st.stop()
 try:
     parsed = parse_manifest(data, filename)
 except ValueError as error:
-    st.error(str(error))
+    st.error(t("parse_error", error=d(error)))
     st.stop()
 
 excluded_set = {name.casefold() for name in re.split(r"[,，\s]+", excluded_names) if name}
@@ -95,83 +119,83 @@ if st.session_state.get("active_fingerprint") != fingerprint:
     st.session_state.pop("report", None)
     st.session_state.active_fingerprint = fingerprint
 
-st.caption(f"当前文件：{filename}　·　格式：{parsed.format}　·　唯一依赖版本 {len(parsed.packages)} 个，选中 {len(selected.packages)} 个")
-with st.expander("检查范围与未解析项", expanded="report" not in st.session_state):
+st.caption(t("inventory_caption", filename=filename, format=parsed.format, total=len(parsed.packages), selected=len(selected.packages)))
+with st.expander(t("scope_expander"), expanded="report" not in st.session_state):
     if selected.packages:
-        st.dataframe(pd.DataFrame([{"生态": p.ecosystem, "包名": p.name, "版本": p.version, "开发依赖": p.dev, "出现位置": "; ".join(p.locations)} for p in selected.packages]), hide_index=True, width="stretch", height=180)
+        st.dataframe(pd.DataFrame([{t("ecosystem"): p.ecosystem, t("package"): p.name, t("version"): p.version, t("dev"): p.dev, t("locations"): "; ".join(location_text(location, parsed.format, lang) for location in p.locations)} for p in selected.packages]), hide_index=True, width="stretch", height=180)
     if parsed.skipped:
-        st.warning(f"有 {len(parsed.skipped)} 条声明无法确定精确版本，本次不会检查这些声明。")
-        st.dataframe(pd.DataFrame(parsed.skipped).rename(columns={"location": "位置", "reason": "原因"}), hide_index=True, width="stretch")
+        st.warning(t("unresolved_warning", count=len(parsed.skipped)))
+        st.dataframe(pd.DataFrame([{t("location"): location_text(item["location"], parsed.format, lang), t("reason"): d(item["reason"])} for item in parsed.skipped]), hide_index=True, width="stretch")
     if excluded:
-        st.caption("本次排除：" + ", ".join(excluded))
+        st.caption(t("excluded_caption") + ", ".join(excluded))
 
 if run_clicked:
     if not selected.packages:
-        st.error("当前没有可检查的精确依赖版本，请先调整清单或排除规则。")
+        st.error(t("no_packages"))
     else:
-        with st.spinner("正在核验依赖版本并读取公告证据……"):
+        with st.spinner(t("spinner")):
             client = SnapshotClient(ROOT / "samples" / "osv-snapshot.json") if mode == "离线演示快照" else OSVClient(cache_dir=ROOT / ".cache" / "osv", cache_ttl=0 if refresh else 86400)
             report = scan(selected, client, excluded)
             report["manifest_sha256"] = hashlib.sha256(data).hexdigest()
             st.session_state.report = report
 
 if "report" not in st.session_state:
-    st.info("确认范围后点击左侧检查按钮。不会解析的条目会单独列出；不会自行读取嵌套文件。")
+    st.info(t("before_scan"))
     st.stop()
 
 report = st.session_state.report
 summary = report["summary"]
 if report["mode"] == "snapshot":
     captured = datetime.fromisoformat(report["snapshot_at"].replace("Z", "+00:00")).astimezone(timezone(timedelta(hours=8)))
-    st.info(f"离线真实公告快照 · 获取于 {captured:%Y-%m-%d %H:%M}（北京时间）。检查你的项目时请切换联网模式。")
+    st.info(t("snapshot_at", time=captured.strftime("%Y-%m-%d %H:%M")))
 else:
     checked = datetime.fromisoformat(report["checked_at"]).astimezone(timezone(timedelta(hours=8)))
-    st.caption(f"OSV 实时版本匹配 · {checked:%Y-%m-%d %H:%M}（北京时间） · 复用公告缓存 {report['cached_advisories']} 条")
+    st.caption(t("live_at", time=checked.strftime("%Y-%m-%d %H:%M"), count=report["cached_advisories"]))
 if report["status"] == "partial":
-    st.warning(f"结果不完整：未解析 {summary['unresolved_entries']} 项、查询失败 {summary['query_errors']} 项、详情未齐 {summary['detail_errors']} 项。具体原因已写入 JSON / Markdown / CSV。")
+    st.warning(t("partial", unresolved=summary["unresolved_entries"], queries=summary["query_errors"], details=summary["detail_errors"]))
 
 columns = st.columns(4, gap="small")
-for column, label, value in zip(columns, ["检查依赖版本", "受影响依赖版本", "去重漏洞", "未解析声明"], [summary["queried_dependencies"], summary["affected_dependencies"], summary["unique_vulnerabilities"], summary["unresolved_entries"]]):
-    column.metric(label, str(value))
+for column, label, value in zip(columns, ["queried_metric", "affected_metric", "vulnerabilities_metric", "unresolved_metric"], [summary["queried_dependencies"], summary["affected_dependencies"], summary["unique_vulnerabilities"], summary["unresolved_entries"]]):
+    column.metric(t(label), str(value))
 
-st.subheader("漏洞与修复参考")
+st.subheader(t("findings_heading"))
 search_col, severity_col = st.columns([2, 1])
-search = search_col.text_input("按 CVE、包名或关键词过滤", placeholder="例如 CVE-2021、minimist、redirect", key="search")
-levels = severity_col.multiselect("公告风险级别", ["CRITICAL", "HIGH", "MEDIUM", "LOW", "UNKNOWN"], default=["CRITICAL", "HIGH", "MEDIUM", "LOW", "UNKNOWN"], key="levels")
+search = search_col.text_input(t("search"), placeholder=t("search_placeholder"), key="search")
+levels = severity_col.multiselect(t("severity_filter"), ["CRITICAL", "HIGH", "MEDIUM", "LOW", "UNKNOWN"], default=["CRITICAL", "HIGH", "MEDIUM", "LOW", "UNKNOWN"], key="levels")
 findings = [f for f in report["findings"] if f["severity"] in levels and search.casefold() in " ".join([f["dependency"], f["vulnerability"], " ".join(f["aliases"]), f["summary"], f["details_excerpt"]]).casefold()]
 if findings:
-    st.dataframe(pd.DataFrame([{"级别": f["severity"], "依赖版本": f["dependency"], "漏洞": f["vulnerability"], "公告修复边界": ", ".join(f["fixed_versions"]) or "未列出", "摘要": f["summary"]} for f in findings]), hide_index=True, width="stretch", height=min(330, 40 + 35 * len(findings)))
-    selected_index = st.selectbox("打开一条证据", list(range(len(findings))), format_func=lambda index: f"{findings[index]['vulnerability']} · {findings[index]['dependency']}", key="evidence")
+    st.dataframe(pd.DataFrame([{t("severity"): f["severity"], t("dependency"): f["dependency"], t("vulnerability"): f["vulnerability"], t("fixed"): ", ".join(f["fixed_versions"]) or t("not_listed"), t("summary"): summary_text(f, lang)} for f in findings]), hide_index=True, width="stretch", height=min(330, 40 + 35 * len(findings)))
+    selected_index = st.selectbox(t("open_evidence"), list(range(len(findings))), format_func=lambda index: f"{findings[index]['vulnerability']} · {findings[index]['dependency']}", key="evidence")
     evidence = findings[selected_index]
     left, right = st.columns([2.1, 1], gap="large")
     with left:
-        st.markdown("**公告原文摘录**")
-        st.text_area("证据内容", value=evidence["details_excerpt"] or evidence["summary"], height=180, disabled=True, key=f"excerpt_{evidence['vulnerability']}_{evidence['dependency']}")
+        st.markdown("**" + t("excerpt_heading") + "**")
+        st.text_area(t("evidence_content"), value=evidence["details_excerpt"] or summary_text(evidence, lang), height=180, disabled=True, key=f"excerpt_{evidence['vulnerability']}_{evidence['dependency']}")
     with right:
-        st.markdown("**修复参考与来源**")
-        st.write(", ".join(evidence["fixed_versions"]) or "公告未列出修复边界")
-        st.caption("可能包含多个维护分支，请结合当前分支与兼容性选择；不会自动改写依赖。")
+        st.markdown("**" + t("fix_heading") + "**")
+        st.write(", ".join(evidence["fixed_versions"]) or t("no_fix"))
+        st.caption(t("fix_hint"))
         for index, url in enumerate(evidence["evidence_urls"], 1):
-            st.link_button(f"查看 OSV 原始公告 {index}", url, width="stretch")
-        st.caption("公告更新时间：" + evidence["advisory_modified"])
+            st.link_button(t("original_link", index=index), url, width="stretch")
+        st.caption(t("modified") + evidence["advisory_modified"])
         if not evidence["details_complete"]:
-            st.warning("命中已保留，但部分详情未取得。")
+            st.warning(t("missing_details"))
 elif report["findings"]:
-    st.info("当前筛选没有匹配的漏洞条目，可清空关键词或调整级别。")
+    st.info(t("no_filter_results"))
 else:
-    st.info("本次未返回有效漏洞匹配；请同时查看范围、查询状态和未解析项。未命中不等于无漏洞。")
+    st.info(t("no_findings"))
 
-with st.expander("逐包查询状态 / 未完成详情 / 已撤回公告"):
-    st.dataframe(pd.DataFrame([{"依赖": p["key"], "状态": p["query_status"], "去重命中": p["vulnerability_count"], "错误": p["query_error"]} for p in report["packages"]]), hide_index=True, width="stretch")
+with st.expander(t("status_expander")):
+    st.dataframe(pd.DataFrame([{t("package_dependency"): p["key"], t("status"): d(p["query_status"]), t("match_count"): p["vulnerability_count"], t("error"): d(p["query_error"])} for p in report["packages"]]), hide_index=True, width="stretch")
     if report["detail_errors"]:
-        st.json(report["detail_errors"])
+        st.dataframe(pd.DataFrame([{t("advisory"): identifier, t("error"): d(error)} for identifier, error in report["detail_errors"].items()]), hide_index=True, width="stretch")
     if report["withdrawn_ids"]:
-        st.write("已撤回：" + ", ".join(report["withdrawn_ids"]))
+        st.write(t("withdrawn") + ", ".join(report["withdrawn_ids"]))
 
-st.subheader("带走这份证据")
+st.subheader(t("download_heading"))
 download_cols = st.columns(3)
-download_cols[0].download_button("↓ Markdown 报告", markdown_report(report).encode("utf-8"), file_name="dependency-report.md", mime="text/markdown", width="stretch", key="download_md")
-download_cols[1].download_button("↓ JSON 完整记录", json.dumps(report, ensure_ascii=False, indent=2).encode("utf-8"), file_name="dependency-report.json", mime="application/json", width="stretch", key="download_json")
-download_cols[2].download_button("↓ CSV 结果清单", csv_report(report), file_name="dependency-report.csv", mime="text/csv", width="stretch", key="download_csv")
-st.caption("报告保留未解析、排除范围与查询异常。缓存只保存公开公告，不保存上传清单。")
-st.markdown('<div class="foot">DEPENDENCY EVIDENCE WORKBENCH / v0.1.0<br>公开漏洞记录核验，不验证利用条件或升级兼容性。代码 Apache-2.0；示例公告数据保留来源与 CC BY 4.0 署名。</div>', unsafe_allow_html=True)
+download_cols[0].download_button(t("download_md"), markdown_report(report, lang=lang).encode("utf-8"), file_name="dependency-report.md", mime="text/markdown", width="stretch", key="download_md")
+download_cols[1].download_button(t("download_json"), json.dumps(report, ensure_ascii=False, indent=2).encode("utf-8"), file_name="dependency-report.json", mime="application/json", width="stretch", key="download_json")
+download_cols[2].download_button(t("download_csv"), csv_report(report, lang=lang), file_name="dependency-report.csv", mime="text/csv", width="stretch", key="download_csv")
+st.caption(t("download_hint"))
+st.markdown(f'<div class="foot">DEPENDENCY EVIDENCE WORKBENCH / v{__version__}<br>{t("footer")}</div>', unsafe_allow_html=True)

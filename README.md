@@ -1,26 +1,30 @@
-# ◉ 依赖漏洞核验工作台
+# ◉ Dependency Evidence Workbench
 
-**Dependency Evidence Workbench** — 把 Python / npm 依赖清单，变成可复查、可导出的漏洞证据报告。
+**English** | [简体中文](README.zh-CN.md)
+
+Turn Python / npm dependency inventories into reviewable, exportable vulnerability evidence reports.
 
 [![Tests](https://github.com/LINXsoserious/dependency-evidence-workbench/actions/workflows/tests.yml/badge.svg)](https://github.com/LINXsoserious/dependency-evidence-workbench/actions/workflows/tests.yml)
 
-![实际界面](docs/screenshot.png)
+![English interface](docs/screenshot-en.jpg)
 
-网页适合人工查看，CLI 适合日常检查和 CI。无需模型、API 密钥或银行卡；不安装、导入或执行清单中的依赖。
+[Chinese interface screenshot](docs/screenshot.png)
 
-## 能做什么
+Use the web interface for inspection and the CLI for daily checks or CI. No model, API key or payment card is required. Dependencies listed in an inventory are never installed, imported or executed.
 
-1. 导入 requirements 精确版本、pip list JSON、npm package-lock v2/v3，先查看检查范围。
-2. 点击联网检查，由 [OSV](https://osv.dev/) 按生态、包名和版本匹配已知漏洞。
-3. 合并 GHSA / PYSEC / CVE 等别名；保留各个受影响的依赖版本与原始来源编号。
-4. 筛选包名、CVE、关键词和级别，查看公告摘录、修复边界及来源链接。
-5. 下载 Markdown、JSON 或 CSV。解析失败、查询失败和未取得详情会写进报告。
+## What it does
 
-**“未命中”“未解析”“查询失败”“仅命中撤回公告”分别展示。不会把请求失败写成零漏洞。**
+1. Import pinned requirements, pip list JSON or npm package-lock v2/v3, then preview the check scope.
+2. Explicitly start a live check against [OSV](https://osv.dev/) using each package's ecosystem, name and exact version.
+3. Merge GHSA / PYSEC / CVE aliases while retaining each affected dependency version and original advisory identifier.
+4. Filter by package, CVE, keyword and severity; inspect original advisory excerpts, fixed-version boundaries and source links.
+5. Export Markdown, JSON or CSV, including unresolved entries, failed queries and unavailable advisory details.
 
-## 快速运行
+**No match, unresolved input, query failure and withdrawn-only matches are distinct outcomes. Failed requests are never reported as zero vulnerabilities.**
 
-需要 Python 3.11+。在项目目录中：
+## Quick start
+
+Requires Python 3.11+. From the project directory:
 
 ```powershell
 python -m venv .venv
@@ -28,9 +32,9 @@ python -m venv .venv
 & .\.venv\Scripts\python.exe -m streamlit run app.py
 ```
 
-Windows 也可运行 `./run.ps1`，首次创建项目虚拟环境并安装依赖。
+On Windows, `./run.ps1` also creates a project virtual environment and installs dependencies on its first run.
 
-macOS / Linux：
+macOS / Linux:
 
 ```bash
 python3 -m venv .venv
@@ -39,93 +43,103 @@ python -m pip install -r requirements.txt
 python -m streamlit run app.py
 ```
 
-安装依赖需要联网。内置演示读取已获取的真实公告快照，不需要网络；联网模式只在用户点击后查询 OSV。
+Installing dependencies requires network access. The built-in demo reads a previously captured snapshot of real advisories and works offline. Live mode queries OSV only after you click the check button.
 
-## 用在自己的项目上
+## Language settings
+
+Choose **English** or **简体中文** in the sidebar's **Language / 界面语言** control. Chinese remains the default. Switching localizes application-owned headings, controls, status messages and newly downloaded Markdown / CSV reports. It retains the selected example, pasted inventory, scope, filters, selected evidence and current results, without making another request.
+
+The CLI accepts `--lang en` or `--lang zh` for help, errors and readable reports; the default is `zh`. JSON fields and values, package names, versions, vulnerability identifiers, original advisory text and reference links stay unchanged. Technical details returned by the operating system or third-party parsers retain their original wording. Translation uses explicit local dictionaries and no translation service. Unsupported locale codes in the Python export functions deterministically fall back to Chinese.
+
+## Check your own project
 
 ### Python
 
-上传精确锁定版本的 requirements.txt。范围约束如 `requests>=2` 不会被擅自解析为某个版本。
+Upload a requirements.txt file containing exact pinned versions. Constraints such as `requests>=2` are not silently resolved to an invented version.
 
-要检查当前环境实际安装的包，先在**目标项目的环境中**导出：
+To check packages actually installed in an environment, export from **the target project's environment**:
 
 ```bash
 python -m pip list --format=json > installed.json
 ```
 
-然后上传 installed.json。requirements 只检查文件实际列出的依赖，不自动补全传递依赖；pip list 则反映导出环境中的已安装包。条件标记会保留说明，但不推断目标环境是否启用。
+Then upload installed.json. Requirements checks cover only dependencies listed in the file and do not resolve transitive dependencies; pip list reflects packages installed in the exported environment. Conditional markers are recorded, but their activation in the target environment is not inferred.
 
 ### JavaScript / TypeScript
 
-上传 npm 生成的 package-lock.json v2/v3。检查其记录的依赖，包括嵌套版本；可选择排除标为 dev 的开发依赖。package.json 范围声明和旧版 lock v1 不在本版支持范围。
+Upload npm-generated package-lock.json v2/v3. The check includes recorded dependencies and nested versions, with an option to exclude entries marked dev. package.json version ranges and lock v1 are unsupported in this release.
 
-### 命令行
+### Command line
 
 ```bash
-python -m dependency_workbench.cli requirements.txt --format markdown --output report.md
+python -m dependency_workbench.cli requirements.txt --lang en --format markdown --output report.md
 python -m dependency_workbench.cli installed.json --format json --output report.json
 python -m dependency_workbench.cli package-lock.json --production --exclude internal-library --output report.json
-python -m dependency_workbench.cli --demo --format markdown
+python -m dependency_workbench.cli --demo --lang en --format markdown
+python -m dependency_workbench.cli --lang zh --help
 ```
 
-退出码：
+Exit codes:
 
-| 退出码 | 含义 |
+| Code | Meaning |
 | --- | --- |
-| `0` | 在选定范围内完成查询，未匹配到有效公开漏洞记录 |
-| `1` | 在选定范围内完成查询，匹配到公开漏洞记录 |
-| `2` | 输入 / 解析 / 查询 / 详情不完整，或没有可检查的版本 |
+| `0` | The selected scope was checked completely, with no active public vulnerability records matched |
+| `1` | The selected scope was checked completely, with public vulnerability records matched |
+| `2` | Input, parsing, queries or details are incomplete, or no versions can be checked |
 
-`--demo` 默认有意命中历史版本漏洞，退出码 1 是预期结果。快照不覆盖的版本会返回不完整结果，不会假装做了离线通用扫描。指定的输出文件若已存在则拒绝覆盖；更换文件名即可保留多次检查记录。
+The demo intentionally matches vulnerabilities in historical versions, so exit code 1 is expected. Versions absent from the snapshot produce an incomplete result; offline mode does not pretend to scan arbitrary packages. Existing output files are never overwritten. Choose a new filename to retain multiple reports.
 
-## 修复参考怎么读
+## Read fix references correctly
 
-“公告修复边界”来自与当前包对应的 OSV 受影响条目，只提取 SEMVER / ECOSYSTEM 的 fixed 事件，不把其他包或 Git 提交哈希当成版本。
+“Advisory fixed versions” comes from OSV affected entries for the matched package. Only fixed events from SEMVER / ECOSYSTEM ranges are extracted; versions belonging to another package and Git commit hashes are not treated as upgrade versions.
 
-同一漏洞可能有多个维护分支，例如 `0.2.4` 和 `1.2.6`。这里列出的是公告事实，**不是自动选出的升级目标**；仍需根据当前分支、兼容性和公告条件选择。程序不修改清单，不验证漏洞可达性、利用条件或实际部署状态。
+A vulnerability may affect multiple maintenance branches, with boundaries such as `0.2.4` and `1.2.6`. These are advisory facts, **not automatically chosen upgrade targets**. Select an upgrade using your current branch, compatibility requirements and advisory conditions. The program does not modify inventories or verify vulnerability reachability, exploitability or deployment state.
 
-## 真实示例与验证
+## Real examples and verification
 
-- 内置示例来自真实 OSV API，快照带获取时间；当前快照含 5 个依赖版本、18 条原始公告记录。
-- Python 示例：2 个唯一依赖版本，合并别名后 6 组漏洞。
-- npm 示例：3 个唯一依赖版本，其中 2 个命中，合并后 6 组漏洞。
-- 混合清单示例刻意包含 2 条无法锁定的声明，报告为不完整。
-- [本工具环境的实际联网检查](docs/evidence/installed-environment-report.json)：35 个已安装包的公开记录匹配，检查时间及范围见文件。
-- [验证记录](docs/verification.md)区分自动化测试、真实 API 调用和浏览器检查。
+- Built-in examples originate from the real OSV API and include a capture timestamp. The retained snapshot contains 5 dependency versions and 18 original advisory records.
+- Python example: 2 unique dependency versions and 6 vulnerability groups after alias merging.
+- npm example: 3 unique dependency versions, 2 affected versions and 6 merged vulnerability groups.
+- The mixed inventory deliberately includes 2 declarations without exact pins and yields an incomplete result.
+- [Recorded live check of this tool's environment](docs/evidence/installed-environment-report.json): public-record matching for 35 installed packages; see the file for time and scope.
+- [Verification record (Chinese)](docs/verification.md) distinguishes automated tests, actual API calls and browser checks.
 
-这些数字是固定快照与指定环境的结果，不是工具准确率或现实项目安全保证。
+These counts describe a fixed snapshot and a specified environment. They do not measure tool accuracy or establish the security of a real project.
 
-## 数据与隐私
+## Data and privacy
 
-联网查询向 `https://api.osv.dev` 发送选中的**包名、生态和精确版本**，不上传清单原文。内部包可先在界面或 CLI 中排除。上传、粘贴内容保存在当前应用会话，不自动写入磁盘；用户明确下载或使用 `--output` 时才生成报告。
+Live queries send selected **package names, ecosystems and exact versions** to `https://api.osv.dev`, without uploading the inventory file. Exclude internal packages in the UI or CLI before checking. Uploaded and pasted content remains in the current application session and is not automatically saved to disk. Reports are written when you download them or explicitly use `--output`.
 
-公告详情可缓存在项目 `.cache/osv`，默认最长 24 小时；版本匹配仍实时查询。缓存只有公开公告，不包含清单、查询结果与凭据。选择“重新获取公告”或 `--refresh` 可忽略缓存。若公开部署，文件会发送到运行 Streamlit 的服务器，而不是只留在浏览器里。
+Public advisory details may be cached in `.cache/osv` for up to 24 hours by default; version matching still uses a live query. The cache contains public advisories only, without inventories, query results or credentials. The refresh checkbox or `--refresh` ignores the advisory cache. If publicly hosted, uploaded files are sent to the Streamlit server running the application, rather than remaining only in the browser.
 
-输入最多 5 MB、50,000 条记录、2,000 个唯一依赖版本。查询按批分组、逐项分页，单请求有超时及有限重试。每次最多读取 200 个公告详情，达到分页 / 时间 / 详情上限会保留命中并标明不完整。不会静默截断后宣称检查完成。
+Limits: 5 MB of input, 50,000 entries and 2,000 unique dependency versions. Queries use batches, per-item pagination, request timeouts and bounded retries. Each check reads at most 200 advisory details. Reaching pagination, time or detail limits retains matches and marks the result incomplete; truncation is never silently presented as a complete check.
 
-## 测试与项目结构
+## Tests and project structure
 
 ```bash
 python -m unittest discover -s tests -v
 ```
 
-CI 在 Ubuntu 与 Windows / Python 3.12 上运行相同测试。测试只使用固定快照和可控响应，不依赖实时 OSV 网络状态。
+CI runs the same suite on Ubuntu and Windows with Python 3.12. Tests use fixed snapshots and controlled responses, without relying on live OSV availability.
+
+The v0.2.0 regressions cover dictionary key parity, a complete English offline flow, input / scope / evidence / result retention after language switches, explicit live-check clicks, localized CLI help and errors, stable JSON, and exit codes `0/1/2`. Public Python exports remain compatible: use `markdown_report(report, lang="en")` or `csv_report(report, lang="en")`; omitting `lang` keeps Chinese output. `scan` continues returning the stable original JSON record.
 
 ```text
-app.py                         网页
+app.py                         Web interface
 dependency_workbench/
-  manifests.py                 清单解析与范围
-  osv.py                       OSV 查询、分页、错误与公告缓存
-  report.py                    去重、修复证据与导出
-  cli.py                       命令行及退出码
-samples/                       清单示例、真实公告快照
-scripts/refresh_demo.py         显式更新公开示例数据
-tests/                         行为与界面测试
-docs/                          验证记录、截图与实际报告
+  manifests.py                 Inventory parsing and scope
+  osv.py                       OSV queries, pagination, errors and advisory cache
+  report.py                    Alias merging, fix evidence and exports
+  cli.py                       Command line and exit codes
+  i18n.py                      Local text dictionaries and diagnostic display
+samples/                       Example inventories and real advisory snapshot
+scripts/refresh_demo.py         Explicit public example-data refresh
+tests/                         Behavior and interface tests
+docs/                          Verification, screenshots and recorded reports
 ```
 
-## 来源与许可
+## Sources and license
 
-程序代码采用 Apache-2.0。公告快照来自 OSV 汇集的 GitHub Advisory Database 和 PyPA Advisory Database，按 CC BY 4.0 保留来源，详见 [DATA_SOURCES.md](DATA_SOURCES.md) 与 `LICENSES/CC-BY-4.0.txt`。
+Code is licensed under Apache-2.0. The advisory snapshot comes from the GitHub Advisory Database and PyPA Advisory Database as aggregated by OSV. Source attribution is retained under CC BY 4.0; see [DATA_SOURCES.md](DATA_SOURCES.md) and [the data license](LICENSES/CC-BY-4.0.txt).
 
-这是基于公开 API 的独立轻量实现，适合显式清单检查与证据整理；并非全生态扫描器。首次代码、测试和文档由 AI 辅助制作并核验，用户本人掌握情况需通过后续实际修改与使用确认。本版不包含大模型或自主 Agent。
+This is an independent, lightweight implementation using a public API, intended for explicit inventory checks and evidence organization. Coverage is limited to the supported formats and ecosystems. Initial code, tests and documentation were produced and verified with AI assistance; the user's independent mastery requires subsequent practical use and modification. This release includes no large language model or autonomous agent.
